@@ -17,8 +17,8 @@ class HFEmbeddings(Embeddings):
 
 def build_vectorstore(documents):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=200,
-        chunk_overlap=50
+        chunk_size=300,
+        chunk_overlap=80
     )
 
     chunks = []

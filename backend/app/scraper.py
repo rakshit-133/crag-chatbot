@@ -6,8 +6,16 @@ def extract_text_from_url(url):
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, "html.parser")
 
+        # remove scripts and styles
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+
         paragraphs = soup.find_all("p")
-        text = " ".join([p.get_text() for p in paragraphs])
+
+        text = " ".join([p.get_text().strip() for p in paragraphs])
+
+        # clean spaces
+        text = " ".join(text.split())
 
         return text
 

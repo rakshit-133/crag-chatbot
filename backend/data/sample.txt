@@ -1,3 +1,9 @@
-Transformers use attention mechanisms to process sequences.
-Attention helps models focus on relevant parts of input.
-RAG stands for Retrieval Augmented Generation.
+Transformers are deep learning models used for sequence tasks such as language translation.
+
+Attention mechanism allows models to focus on relevant parts of the input sequence.
+
+RAG (Retrieval Augmented Generation) combines retrieval with text generation.
+
+Vector databases store embeddings for efficient similarity search.
+
+Neural networks learn patterns from data using layers of computation.
