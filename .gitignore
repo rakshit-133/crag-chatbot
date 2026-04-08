@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# FAISS index
+faiss_index/
+
+# OS
+.DS_Store
+Thumbs.db

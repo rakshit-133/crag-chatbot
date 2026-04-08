@@ -1,0 +1,13 @@
+import os
+from tavily import TavilyClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+
+def search_web(query):
+    response = client.search(query=query, max_results=5)
+
+    urls = [r["url"] for r in response["results"]]
+    return urls

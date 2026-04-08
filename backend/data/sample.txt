@@ -1,0 +1,3 @@
+Transformers use attention mechanisms to process sequences.
+Attention helps models focus on relevant parts of input.
+RAG stands for Retrieval Augmented Generation.
