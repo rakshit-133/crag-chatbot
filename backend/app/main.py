@@ -2,6 +2,7 @@ from .web_search import search_web
 from .scraper import scrape_urls
 from .web_ingest import build_vectorstore
 from .query_rewrite import rewrite_query
+from .llm import generate_answer
 
 def evaluate_results(results):
     if not results:
@@ -117,11 +118,14 @@ def main():
         print("No results to display.")
         return
 
-    for i, (doc, score) in enumerate(results[:10]):
-        print(f"Result {i+1} | Score: {score}")
-        print(f"Source: {doc.metadata.get('source')}")
-        print(doc.page_content[:1000])  # limit output
-        print()
+    print("\nGenerating final answer...\n")
+
+    contexts = [doc.page_content for doc, _ in results[:5]]
+
+    answer = generate_answer(query, contexts)
+
+    print("\nFinal Answer:\n")
+    print(answer)
 
 
 if __name__ == "__main__":
