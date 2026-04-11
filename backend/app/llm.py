@@ -20,6 +20,14 @@ You are an intelligent assistant. Answer the question using ONLY the provided co
 
 If the context is insufficient, say "I don't have enough information."
 
+Instructions for your answer:
+- Write at least 3 to 4 paragraphs
+- Each paragraph should cover a different aspect of the topic
+- Each paragraph should be 3 to 5 sentences long
+- use bullet points or headers if required
+- Write in a clear, informative, and flowing style like you are talking to someone face to face 
+- Stay strictly within the provided context, do not add outside knowledge
+
 Question:
 {query}
 
@@ -30,11 +38,12 @@ Answer:
 """
 
     response = client.chat.completions.create(
-        model = "llama-3.1-8b-instant",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3
+        temperature=0.3,
+        max_tokens=1024
     )
 
     return response.choices[0].message.content.strip()
