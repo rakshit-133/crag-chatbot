@@ -1,6 +1,8 @@
 import React, { useState, createContext, useContext, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
-import { Send, Loader2, CheckCircle2, AlertCircle, Info, ExternalLink, Sparkles, ArrowLeft } from "lucide-react";
+import { Send, Loader2, CheckCircle2, AlertCircle, Info, ExternalLink, Sparkles, ArrowLeft, Cpu, Database, Globe, Code2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // ── Theme Context ──────────────────────────────────────────────
 const ThemeContext = createContext();
@@ -82,6 +84,14 @@ const steps = [
   { id:"04", label:"Action Trigger", desc:"CORRECT / AMBIGUOUS / INCORRECT", color:"#f43f5e" },
   { id:"05", label:"Refine",         desc:"Decompose → filter → recompose", color:"#4169e1" },
   { id:"06", label:"Generate",       desc:"LLaMA produces final answer",     color:"#10b981" },
+];
+
+// ── Array of Dynamic Greetings ────────────────────────────────
+const greetings = [
+  "Hey, what's on your mind?",
+  "Hi! How can I assist you today?",
+  "Hello! What would you like to explore?",
+  "Ready to search? Ask me anything!"
 ];
 
 const SunIcon = ({ color }) => (
@@ -214,6 +224,8 @@ function HeroPage({ onEnter }) {
       <div style={{ position:"fixed", top:"15%", left:"50%", transform:"translateX(-50%)",
         width:"700px", height:"340px", background:t.glow,
         pointerEvents:"none", zIndex:0, transition:"background 0.35s" }}/>
+      
+      {/* Enhanced Navbar */}
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100,
         padding:"1rem 2rem", display:"flex", alignItems:"center", justifyContent:"space-between",
         borderBottom:`1px solid ${t.navBorder}`, background:t.bgNav,
@@ -229,18 +241,35 @@ function HeroPage({ onEnter }) {
             border:`1px solid ${t.accent}33`, letterSpacing:"0.1em" }}>BETA</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:"1.75rem" }}>
+          <a href="https://arxiv.org/abs/2401.15884" target="_blank" rel="noreferrer"
+            style={{ fontSize:"13px", color:t.textMuted, cursor:"pointer", textDecoration:"none",
+              letterSpacing:"0.05em", transition:"color 0.2s", fontWeight: 500 }}
+            onMouseEnter={e => e.target.style.color = t.text}
+            onMouseLeave={e => e.target.style.color = t.textMuted}>
+            Research Paper
+          </a>
+          <a href="https://github.com/rakshit-133/crag-chatbot" target="_blank" rel="noreferrer"
+            style={{ fontSize:"13px", color:t.textMuted, cursor:"pointer", textDecoration:"none",
+              letterSpacing:"0.05em", transition:"color 0.2s", fontWeight: 500 }}
+            onMouseEnter={e => e.target.style.color = t.text}
+            onMouseLeave={e => e.target.style.color = t.textMuted}>
+            GitHub Repo
+          </a>
           <ThemeToggle />
         </div>
       </nav>
-      <div ref={containerRef} style={{ height:"190vh", display:"flex",
-        alignItems:"flex-start", justifyContent:"center", paddingTop:"80px" }}>
-        <div style={{ position:"sticky", top:"80px", width:"100%",
+
+      <div ref={containerRef} style={{ display:"flex", flexDirection: "column",
+        alignItems:"center", justifyContent:"flex-start", paddingTop:"120px", paddingBottom: "100px" }}>
+        
+        {/* Scroll Animation Section */}
+        <div style={{ width:"100%", height: "140vh",
           maxWidth:"960px", padding:"0 1.5rem", perspective:"1200px" }}>
           <motion.div style={{ translateY, opacity:headOpacity, textAlign:"center", marginBottom:"2.5rem" }}>
             <motion.div initial={{ opacity:0, y:26 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.6, ease:"easeOut" }}>
               <div style={{ fontSize:"10px", letterSpacing:"0.3em", color:t.accent,
-                marginBottom:"1.2rem", textTransform:"uppercase" }}>
+                marginBottom:"1.2rem", textTransform:"uppercase", fontWeight: 600 }}>
                 Corrective Retrieval Augmented Generation
               </div>
               <h1 style={{ fontSize:"clamp(2.4rem,6vw,4.6rem)", fontWeight:800,
@@ -259,17 +288,56 @@ function HeroPage({ onEnter }) {
                 <motion.button whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}
                   onClick={onEnter}
                   style={{ padding:"11px 24px", background:t.accent, color:"#fff",
-                    border:"none", borderRadius:"8px", fontSize:"12px", fontWeight:700,
+                    border:"none", borderRadius:"8px", fontSize:"13px", fontWeight:700,
                     cursor:"pointer", letterSpacing:"0.05em", fontFamily:"inherit" }}>
                   Try it now →
                 </motion.button>
               </div>
             </motion.div>
           </motion.div>
+          
           <ScrollCard rotate={rotate} scale={scale}>
             <PipelineCard />
           </ScrollCard>
         </div>
+
+        {/* Tech Stack Explanation Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          style={{ maxWidth: "1000px", width: "100%", padding: "0 2rem", marginTop: "-10vh" }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <h2 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: "1rem" }}>Powered by Next-Gen AI</h2>
+            <p style={{ color: t.textMuted, maxWidth: "600px", margin: "0 auto" }}>
+              This architecture replaces static databases with real-time web intelligence and lightning-fast inference models.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
+            {[
+              { icon: Cpu, title: "Groq LPU Engine", desc: "Utilizing the Groq API for ultra-low latency inference, enabling real-time document evaluation and query rewriting." },
+              { icon: Globe, title: "LLaMA 3.1 8B", desc: "Serves as the core cognitive engine, performing zero-shot evaluation, semantic routing, and context-constrained generation." },
+              { icon: Database, title: "Tavily Search API", desc: "Bypasses standard Google search limitations by deploying an LLM-optimized search engine to fetch high-quality, relevant URLs." },
+              { icon: Code2, title: "spaCy & FAISS", desc: "Leverages spaCy for precise sentence-level decomposition and FAISS for rapid in-memory vector similarity searching." }
+            ].map((stack, i) => (
+              <div key={i} style={{ 
+                background: t.bgCard, border: `1px solid ${t.borderLight}`, 
+                borderRadius: "16px", padding: "1.5rem",
+                display: "flex", flexDirection: "column", gap: "1rem",
+                transition: "transform 0.2s"
+              }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: t.accentLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <stack.icon size={20} color={t.accent} />
+                </div>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 600 }}>{stack.title}</h3>
+                <p style={{ fontSize: "0.9rem", color: t.textMuted, lineHeight: 1.6 }}>{stack.desc}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -311,12 +379,21 @@ function TypingDots({ color }) {
 function SearchPage({ onBack }) {
   const { theme } = useTheme();
   const t = tokens[theme];
+  
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [action, setAction] = useState(null);
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState([]);
+  const [currentGreeting, setCurrentGreeting] = useState("");
+  
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({ minHeight: 56, maxHeight: 160 });
+
+  // Pick a random greeting when the page loads
+  useEffect(() => {
+    const randomIdx = Math.floor(Math.random() * greetings.length);
+    setCurrentGreeting(greetings[randomIdx]);
+  }, []);
 
   const handleSubmit = async () => {
     if (!query.trim() || isLoading) return;
@@ -328,15 +405,11 @@ function SearchPage({ onBack }) {
     try {
       const response = await fetch("http://localhost:8000/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: query.trim() }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
@@ -351,21 +424,18 @@ function SearchPage({ onBack }) {
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const dataStr = line.replace("data: ", "").trim();
-
             if (dataStr === "[DONE]") {
               setIsLoading(false);
               break;
             }
-
             try {
               const parsed = JSON.parse(dataStr);
-              
               if (parsed.action) setAction(parsed.action);
               if (parsed.sources) setSources(parsed.sources);
               if (parsed.answer) setAnswer(prev => prev + parsed.answer);
               if (parsed.type === "error") {
                 setAction("INCORRECT");
-                setAnswer(`Error: ${parsed.message}`);
+                setAnswer(`**Error:** ${parsed.message}`);
               }
             } catch (e) {
               // Ignore incomplete JSON chunks during parsing
@@ -376,7 +446,7 @@ function SearchPage({ onBack }) {
     } catch (error) {
       console.error("Fetch error:", error);
       setAction("INCORRECT");
-      setAnswer("Failed to connect to the backend server.");
+      setAnswer("**Connection Failed:** Cannot reach the FastAPI server. Please ensure it is running on port 8000.");
       setIsLoading(false);
     }
   };
@@ -396,13 +466,14 @@ function SearchPage({ onBack }) {
 
   return (
     <div style={{ minHeight: "100vh", background: t.bg,
-      fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
+      fontFamily: "'Inter', system-ui, sans-serif", // Clean font stack for reading
       color: t.text, transition: "background 0.35s, color 0.35s",
       position: "relative", overflow: "hidden" }}>
       <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)",
         width: "800px", height: "400px", background: t.glow,
         pointerEvents: "none", zIndex: 0, transition: "background 0.35s" }} />
       <div style={{ position: "relative", zIndex: 1, maxWidth: "820px", margin: "0 auto", padding: "0 1.5rem" }}>
+        
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }} style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
           <motion.button whileHover={{ x: -2 }} whileTap={{ scale: 0.97 }} onClick={onBack}
@@ -412,14 +483,15 @@ function SearchPage({ onBack }) {
               marginBottom: "2rem", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.color = t.text; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.borderLight; e.currentTarget.style.color = t.textMuted; }}>
-            <ArrowLeft size={16} /><span>Back to home</span>
+            <ArrowLeft size={16} /><span>Back to Dashboard</span>
           </motion.button>
           <div style={{ textAlign: "center" }}>
-            <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-semibold tracking-tight mb-3 bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-zinc-100 dark:to-zinc-400 bg-clip-text text-transparent">
-              Search with CRAG
+            {/* Dynamic Greeting Title */}
+            <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold tracking-tight mb-3 bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-zinc-100 dark:to-zinc-400 bg-clip-text text-transparent">
+              {currentGreeting}
             </h1>
-            <p style={{ fontSize: "14px", color: t.textMuted, letterSpacing: "0.02em" }}>
-              Corrective Retrieval Augmented Generation Pipeline
+            <p style={{ fontSize: "15px", color: t.textMuted, letterSpacing: "0.02em" }}>
+              Powered by your Corrective Retrieval Augmented Generation Pipeline
             </p>
           </div>
         </motion.div>
@@ -428,20 +500,20 @@ function SearchPage({ onBack }) {
           style={{ background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "16px", padding: "1rem",
             boxShadow: theme === "dark" ? "0 8px 32px rgba(0,0,0,0.4)" : "0 8px 32px rgba(0,0,0,0.06)", transition: "all 0.35s" }}>
           <textarea ref={textareaRef} value={query} onChange={(e) => { setQuery(e.target.value); adjustHeight(); }}
-            onKeyDown={handleKeyDown} placeholder="Ask me anything..."
+            onKeyDown={handleKeyDown} placeholder="Ask about the history of Clash of Clans, linear programming, API development..."
             style={{ width: "100%", background: t.bgInput, border: `1px solid ${t.border}`, borderRadius: "12px",
-              padding: "1rem", fontSize: "15px", color: t.text, resize: "none", outline: "none", fontFamily: "inherit",
+              padding: "1rem", fontSize: "16px", color: t.text, resize: "none", outline: "none", fontFamily: "inherit",
               transition: "all 0.2s", lineHeight: 1.6 }}
             onFocus={(e) => e.target.style.borderColor = t.accent} onBlur={(e) => e.target.style.borderColor = t.border} />
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.75rem" }}>
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={!query.trim() || isLoading}
-              style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px",
+              style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 24px",
                 background: query.trim() && !isLoading ? t.accent : t.borderLight,
                 color: query.trim() && !isLoading ? "#ffffff" : t.textDim, border: "none", borderRadius: "10px",
                 fontSize: "14px", fontWeight: 600, cursor: query.trim() && !isLoading ? "pointer" : "not-allowed",
                 fontFamily: "inherit", transition: "all 0.2s" }}>
-              {isLoading ? <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> : <Send size={16} />}
-              <span>{isLoading ? "Searching..." : "Search"}</span>
+              {isLoading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : <Send size={18} />}
+              <span>{isLoading ? "Analyzing..." : "Search"}</span>
             </motion.button>
           </div>
         </motion.div>
@@ -451,10 +523,10 @@ function SearchPage({ onBack }) {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               style={{ marginTop: "1.5rem", padding: "1rem", background: t.bgCard, border: `1px solid ${t.borderLight}`,
                 borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", transition: "all 0.35s" }}>
-              {React.createElement(actionConfig[action].icon, { size: 20, style: { color: actionConfig[action].color, flexShrink: 0 } })}
+              {React.createElement(actionConfig[action].icon, { size: 22, style: { color: actionConfig[action].color, flexShrink: 0 } })}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "13px", fontWeight: 600, color: t.text }}>Action Triggered: {action}</div>
-                <div style={{ fontSize: "12px", color: t.textMuted, marginTop: "2px" }}>{actionConfig[action].label}</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: t.text }}>Action Triggered: {action}</div>
+                <div style={{ fontSize: "13px", color: t.textMuted, marginTop: "2px" }}>{actionConfig[action].label}</div>
               </div>
             </motion.div>
           )}
@@ -463,12 +535,36 @@ function SearchPage({ onBack }) {
         <AnimatePresence>
           {answer && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} style={{ marginTop: "2rem" }}>
-              <div style={{ background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "16px", padding: "1.5rem", transition: "all 0.35s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem", paddingBottom: "1rem", borderBottom: `1px solid ${t.borderLight}` }}>
-                  <Sparkles size={18} style={{ color: t.accent }} />
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: t.text }}>Generated Answer</span>
+              <div style={{ background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "16px", padding: "2rem", transition: "all 0.35s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1.5rem", paddingBottom: "1rem", borderBottom: `1px solid ${t.borderLight}` }}>
+                  <Sparkles size={20} style={{ color: t.accent }} />
+                  <span style={{ fontSize: "16px", fontWeight: 600, color: t.text }}>Generated Answer</span>
                 </div>
-                <div style={{ fontSize: "15px", lineHeight: 1.8, color: t.text, whiteSpace: "pre-wrap" }}>{answer}</div>
+                
+                {/* Markdown Renderer with Custom Typography Styles */}
+                <div style={{ fontSize: "16px", color: t.text }} className="markdown-body">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({node, ...props}) => <h1 className="text-3xl font-extrabold mt-6 mb-4 leading-tight text-blue-500" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-6 mb-3 leading-snug" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-xl font-semibold mt-5 mb-2" {...props} />,
+                      p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-[15px] opacity-90" {...props} />,
+                      ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />,
+                      ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 space-y-2" {...props} />,
+                      li: ({node, ...props}) => <li className="text-[15px] opacity-90" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-bold text-blue-400 dark:text-blue-300" {...props} />,
+                      a: ({node, ...props}) => <a className="text-blue-500 hover:underline" {...props} />,
+                      blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-blue-500 pl-4 italic opacity-80 my-4" {...props} />,
+                      code: ({node, inline, ...props}) => 
+                        inline 
+                          ? <code className="bg-zinc-200 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-500" {...props} />
+                          : <pre className="bg-zinc-200 dark:bg-zinc-900 p-4 rounded-lg overflow-x-auto mb-4 text-sm font-mono"><code {...props} /></pre>
+                    }}
+                  >
+                    {answer}
+                  </ReactMarkdown>
+                </div>
               </div>
             </motion.div>
           )}
@@ -476,16 +572,16 @@ function SearchPage({ onBack }) {
 
         <AnimatePresence>
           {sources.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} style={{ marginTop: "1.5rem", marginBottom: "3rem" }}>
-              <div style={{ fontSize: "13px", fontWeight: 600, color: t.textMuted, marginBottom: "0.75rem" }}>Knowledge Sources Used</div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} style={{ marginTop: "2rem", marginBottom: "4rem" }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: t.textMuted, marginBottom: "1rem" }}>Knowledge Sources Used</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {sources.map((src, i) => (
                   <motion.a key={i} href={src.url} target="_blank" rel="noopener noreferrer" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} whileHover={{ x: 4 }}
-                    style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0.75rem 1rem", background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "10px", fontSize: "13px", color: t.text, textDecoration: "none", transition: "all 0.2s" }}
+                    style={{ display: "flex", alignItems: "center", gap: "12px", padding: "1rem 1.25rem", background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "12px", fontSize: "14px", color: t.text, textDecoration: "none", transition: "all 0.2s" }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.background = t.accentLight; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.borderLight; e.currentTarget.style.background = t.bgCard; }}>
-                    <ExternalLink size={14} style={{ color: t.accent, flexShrink: 0 }} />
-                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{src.title}</span>
+                    <ExternalLink size={16} style={{ color: t.accent, flexShrink: 0 }} />
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>{src.title}</span>
                   </motion.a>
                 ))}
               </div>
@@ -496,9 +592,9 @@ function SearchPage({ onBack }) {
         <AnimatePresence>
           {isLoading && !action && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              style={{ marginTop: "2rem", padding: "1.5rem", background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", transition: "all 0.35s" }}>
+              style={{ marginTop: "2rem", padding: "1.5rem", background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", transition: "all 0.35s" }}>
               <TypingDots color={t.accent} />
-              <span style={{ fontSize: "14px", color: t.textMuted }}>Running retrieval, evaluation, and LLaMA generation...</span>
+              <span style={{ fontSize: "15px", color: t.textMuted, fontWeight: 500 }}>Running retrieval, evaluation, and LLaMA 3.1 generation...</span>
             </motion.div>
           )}
         </AnimatePresence>
