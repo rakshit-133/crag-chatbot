@@ -403,7 +403,11 @@ function SearchPage({ onBack }) {
     setSources([]);
 
     try {
-      const response = await fetch("http://localhost:8000/api/chat", {
+      // Dynamically select the API URL based on the environment
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const apiUrl = `${baseUrl}/api/chat`;
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: query.trim() }),

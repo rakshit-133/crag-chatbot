@@ -9,9 +9,10 @@ from .main import run_crag_pipeline
 app = FastAPI(title="CRAG Chatbot API")
 
 # Allow frontend dev server
+# Allow frontend dev server and production domains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+    allow_origins=["*"], # Opens CORS for production. You can restrict this to your Vercel URL later.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
