@@ -82,71 +82,75 @@ def retrieve_and_evaluate(query):
 
     return evaluated_docs, action
 
-
-def main():
-    query = "history of clash of clans"
-
-    print(f"\nOriginal Query: {query}")
-
-    # ── Step 1: Retrieve and evaluate ───────────────────────
+def run_crag_pipeline(query: str):
     evaluated_docs, action = retrieve_and_evaluate(query)
+    
+    # Yield the action immediately so the frontend can update the UI
+    yield {"action": action}
 
-    # ── Step 2: Route based on action ───────────────────────
+    contexts = []
+    top_docs_for_sources = []
 
-    # CORRECT → refine internal web chunks only
     if action == "CORRECT":
-        print("\n[CORRECT] Refining retrieved documents...")
-        top_docs = enforce_diversity(evaluated_docs, top_k=5)
-        contexts = refine_documents(query, top_docs, top_k=5)
+        top_docs_for_sources = enforce_diversity(evaluated_docs, top_k=5)
+        contexts = refine_documents(query, top_docs_for_sources, top_k=5)
 
-    # INCORRECT → discard, rewrite query, new web search
     elif action == "INCORRECT":
-        print("\n[INCORRECT] Discarding results. Rewriting query for new search...")
         keyword_query = rewrite_query(query)
-        print(f"Rewritten Query: {keyword_query}")
-
         new_docs, _ = retrieve_and_evaluate(keyword_query)
 
         if not new_docs:
-            print("Second search also returned nothing.")
+            yield {"answer": "No information found after web search.", "sources": []}
             return
 
-        top_docs = enforce_diversity(new_docs, top_k=5)
-        contexts = refine_documents(keyword_query, top_docs, top_k=5)
+        top_docs_for_sources = enforce_diversity(new_docs, top_k=5)
+        contexts = refine_documents(keyword_query, top_docs_for_sources, top_k=5)
 
-    # AMBIGUOUS → refine internal + new web search, combine both
     elif action == "AMBIGUOUS":
-        print("\n[AMBIGUOUS] Combining internal and external knowledge...")
-
-        # Internal: refine current results
         top_docs = enforce_diversity(evaluated_docs, top_k=3)
         internal_contexts = refine_documents(query, top_docs, top_k=3)
 
-        # External: rewrite + new search
         keyword_query = rewrite_query(query)
-        print(f"Rewritten Query for web: {keyword_query}")
-
         ext_docs, _ = retrieve_and_evaluate(keyword_query)
         top_ext = enforce_diversity(ext_docs, top_k=3)
         external_contexts = refine_documents(keyword_query, top_ext, top_k=3)
 
-        # Combine both (paper: k = k_in + k_ex)
+        top_docs_for_sources = top_docs + top_ext
         contexts = internal_contexts + external_contexts
 
-    # ── Step 3: Safety check ────────────────────────────────
     if not contexts:
-        print("\nNo usable context found. Cannot generate answer.")
+        yield {"answer": "No usable context found.", "sources": []}
         return
 
-    # ── Step 4: Generate final answer ───────────────────────
-    print(f"\nTotal context strips: {len(contexts)}")
-    print("\nGenerating final answer...\n")
+    # Yield the sources before generation starts
+    unique_sources = {}
+    for doc, _ in top_docs_for_sources:
+        url = doc.metadata.get("source")
+        if url and url not in unique_sources:
+            unique_sources[url] = {"title": url, "url": url}
+            
+    yield {"sources": list(unique_sources.values())}
 
+    # Generate and yield the final answer
     answer = generate_answer(query, contexts)
+    yield {"answer": answer}
 
-    print("\nFinal Answer:")
-    print("=" * 50)
-    print(answer)
+def main():
+    """CLI entry point — consumes the generator and prints output."""
+    query = "history of clash of clans"
+    print(f"\nOriginal Query: {query}")
+
+    for event in run_crag_pipeline(query):
+        if event["type"] == "status":
+            print(f"  ⏳ {event['message']}")
+        elif event["type"] == "action":
+            print(f"  🎯 CRAG Action: {event['action']}")
+        elif event["type"] == "error":
+            print(f"  ❌ {event['message']}")
+        elif event["type"] == "answer":
+            print("\nFinal Answer:")
+            print("=" * 50)
+            print(event["content"])
 
 
 if __name__ == "__main__":
