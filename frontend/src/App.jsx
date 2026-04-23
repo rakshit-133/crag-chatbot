@@ -504,7 +504,7 @@ function SearchPage({ onBack }) {
           style={{ background: t.bgCard, border: `1px solid ${t.borderLight}`, borderRadius: "16px", padding: "1rem",
             boxShadow: theme === "dark" ? "0 8px 32px rgba(0,0,0,0.4)" : "0 8px 32px rgba(0,0,0,0.06)", transition: "all 0.35s" }}>
           <textarea ref={textareaRef} value={query} onChange={(e) => { setQuery(e.target.value); adjustHeight(); }}
-            onKeyDown={handleKeyDown} placeholder="Ask about the history of Clash of Clans, linear programming, API development..."
+            onKeyDown={handleKeyDown} placeholder="Ask me anything..."
             style={{ width: "100%", background: t.bgInput, border: `1px solid ${t.border}`, borderRadius: "12px",
               padding: "1rem", fontSize: "16px", color: t.text, resize: "none", outline: "none", fontFamily: "inherit",
               transition: "all 0.2s", lineHeight: 1.6 }}
