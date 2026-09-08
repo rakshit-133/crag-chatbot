@@ -136,21 +136,25 @@ def run_crag_pipeline(query: str):
     yield {"answer": answer}
 
 def main():
+    import sys
+    if sys.stdout.encoding != 'utf-8':
+        sys.stdout.reconfigure(encoding='utf-8')
+
     """CLI entry point — consumes the generator and prints output."""
     query = "history of clash of clans"
     print(f"\nOriginal Query: {query}")
 
     for event in run_crag_pipeline(query):
-        if event["type"] == "status":
-            print(f"  ⏳ {event['message']}")
-        elif event["type"] == "action":
-            print(f"  🎯 CRAG Action: {event['action']}")
-        elif event["type"] == "error":
-            print(f"  ❌ {event['message']}")
-        elif event["type"] == "answer":
+        if "type" in event and event["type"] == "status":
+            print(f"  [WAIT] {event.get('message', '')}")
+        elif "action" in event:
+            print(f"  [ACTION] CRAG Action: {event['action']}")
+        elif "type" in event and event["type"] == "error":
+            print(f"  [ERROR] {event.get('message', '')}")
+        elif "answer" in event:
             print("\nFinal Answer:")
             print("=" * 50)
-            print(event["content"])
+            print(event["answer"])
 
 
 if __name__ == "__main__":
